@@ -1,0 +1,58 @@
+version: '3.8'
+
+# =============================================================================
+# Gostio-ERP — Orquestación de Producción para AWS 
+# Ajustado para convivir con Nginx Proxy Manager en la red 'npm_default'
+# =============================================================================
+
+services:
+  gostio-db:
+    image: postgres:16-alpine
+    container_name: gostio-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin_erp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD en .env}
+      POSTGRES_DB: ${POSTGRES_DB:-dbsolventas}
+    volumes:
+      - gostio_prod_data:/var/lib/postgresql/data
+    networks:
+      - erp-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-admin_erp} -d $${POSTGRES_DB:-dbsolventas}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  gostio-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gostio-web
+    restart: always
+    depends_on:
+      gostio-db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      HOSTNAME: "0.0.0.0"
+      DATABASE_URL: ${DATABASE_URL:?Defina DATABASE_URL en .env}
+    ports:
+      - "3050:3000"
+    networks:
+      - erp-network
+      - npm-network
+
+networks:
+  erp-network:
+    name: erp-network
+    driver: bridge
+  npm-network:
+    external: true
+    name: npm_default  # Vinculación exacta con la red real de tu NPM en AWS
+
+volumes:
+  gostio_prod_data:
+    name: gostio_prod_data

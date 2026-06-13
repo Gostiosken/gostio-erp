@@ -1,0 +1,40 @@
+import type { Sucursal } from "@/lib/types/sucursal";
+
+export const SUCURSALES_MOCK: Sucursal[] = [
+  {
+    idsucursal: 1,
+    razon_social: "Distribuidora Lima Norte S.A.C.",
+    tipo_documento: "RUC",
+    num_documento: "20123456789",
+    direccion: "Av. Túpac Amaru 1234, Los Olivos",
+    telefono: "01-555-0101",
+    email: "contacto@limanorte.com",
+    representante: "María García López",
+    logo: null,
+    estado: "1",
+  },
+  {
+    idsucursal: 2,
+    razon_social: "Comercial Andina E.I.R.L.",
+    tipo_documento: "RUC",
+    num_documento: "20987654321",
+    direccion: "Jr. Cusco 456, Cercado de Lima",
+    telefono: "01-555-0202",
+    email: "ventas@andina.pe",
+    representante: "Carlos Mendoza Ruiz",
+    logo: null,
+    estado: "1",
+  },
+  {
+    idsucursal: 3,
+    razon_social: "Bodega El Sol",
+    tipo_documento: "DNI",
+    num_documento: "45678912",
+    direccion: "Calle Las Flores 78, San Juan de Lurigancho",
+    telefono: "01-555-0303",
+    email: null,
+    representante: "Ana Torres Vega",
+    logo: null,
+    estado: "0",
+  },
+];

@@ -1,0 +1,238 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+model Categoria {
+  idcategoria Int        @id @default(autoincrement())
+  nombre      String     @db.VarChar(50)
+  estado      String     @db.Char(1)
+  articulos   Articulo[]
+}
+
+model UnidadMedida {
+  idunidad_medida Int        @id @default(autoincrement())
+  nombre          String     @db.VarChar(30)
+  prefijo         String     @db.VarChar(5)
+  estado          String     @db.Char(1)
+  articulos       Articulo[]
+}
+
+model Articulo {
+  idarticulo       Int              @id @default(autoincrement())
+  idcategoria      Int
+  idunidad_medida  Int
+  nombre           String           @db.VarChar(50)
+  descripcion      String?          @db.Text
+  imagen           String?          @db.VarChar(150)
+  estado           String           @db.Char(1)
+  
+  categoria        Categoria        @relation(fields: [idcategoria], references: [idcategoria], onDelete: NoAction, onUpdate: NoAction)
+  unidadMedida     UnidadMedida     @relation(fields: [idunidad_medida], references: [idunidad_medida], onDelete: NoAction, onUpdate: NoAction)
+  detalleIngresos  DetalleIngreso[]
+}
+
+model Sucursal {
+  idsucursal     Int                        @id @default(autoincrement())
+  razon_social   String                     @db.VarChar(150)
+  tipo_documento String                     @db.VarChar(20)
+  num_documento  String                     @db.VarChar(20)
+  direccion      String                     @db.VarChar(100)
+  telefono       String                     @db.VarChar(20)
+  email          String?                    @db.VarChar(70)
+  representante  String?                    @db.VarChar(150)
+  logo           String?                    @db.VarChar(50)
+  estado         String                     @db.Char(1)
+  
+  documentos     DetalleDocumentoSucursal[]
+  ingresos       Ingreso[]
+  pedidos        Pedido[]
+  usuarios       Usuario[]
+  timbrados      Timbrado[]
+}
+
+model Timbrado {
+  idtimbrado         Int      @id @default(autoincrement())
+  numero_timbrado    String   @db.VarChar(20)
+  idsucursal         Int
+  serie              String   @db.VarChar(7)
+  numero_desde       Int
+  numero_hasta       Int
+  numero_actual      Int
+  fecha_inicio       DateTime @db.Date
+  fecha_vencimiento  DateTime @db.Date
+  estado             String   @db.Char(1)
+
+  sucursal           Sucursal @relation(fields: [idsucursal], references: [idsucursal], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Empleado {
+  idempleado     Int       @id @default(autoincrement())
+  nombre         String    @db.VarChar(50)
+  apellidos      String    @db.VarChar(50)
+  tipo_documento String    @db.VarChar(20)
+  num_documento  String    @db.VarChar(20)
+  direccion      String?   @db.VarChar(100)
+  telefono       String?   @db.VarChar(20)
+  email          String?   @db.VarChar(70)
+  foto           String?   @db.VarChar(150)
+  estado         String    @db.Char(1)
+
+  usuarios       Usuario[]
+}
+
+model ConfiguracionGlobal {
+  idglobal            Int     @id @default(autoincrement())
+  empresa             String  @unique @db.VarChar(150)
+  nombre_impuesto     String  @db.VarChar(30)
+  porcentaje_impuesto Decimal @db.Decimal(5, 2)
+  simbolo_moneda      String  @db.VarChar(5)
+  logo                String? @db.VarChar(150)
+}
+
+model Usuario {
+  idusuario         Int      @id @default(autoincrement())
+  idempleado        Int
+  idsucursal        Int
+  login             String   @unique @db.VarChar(20)
+  clave             String   @db.VarChar(64)
+  tipo              String   @db.VarChar(30)
+  mnu_almacen       Int      @default(0)
+  mnu_compras       Int      @default(0)
+  mnu_ventas        Int      @default(0)
+  mnu_mantenimiento Int      @default(0)
+  mnu_seguridad     Int      @default(0)
+  mnu_admin         Int      @default(0)
+  estado            String   @db.Char(1)
+
+  empleado          Empleado @relation(fields: [idempleado], references: [idempleado], onDelete: NoAction, onUpdate: NoAction)
+  sucursal          Sucursal @relation(fields: [idsucursal], references: [idsucursal], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model DetalleIngreso {
+  iddetalle_ingreso        Int              @id @default(autoincrement())
+  idingreso                Int
+  idarticulo               Int
+  codigo                   String           @db.VarChar(50)
+  serie                    String?          @db.VarChar(50)
+  descripcion              String?          @db.VarChar(1024)
+  stock_ingreso            Int
+  stock_actual             Int
+  precio_compra            Decimal          @db.Decimal(8, 2)
+  precio_ventadistribuidor Decimal          @db.Decimal(8, 2)
+  precio_ventapublico      Decimal          @db.Decimal(8, 2)
+  
+  articulo                 Articulo         @relation(fields: [idarticulo], references: [idarticulo], onDelete: NoAction, onUpdate: NoAction)
+  ingreso                  Ingreso          @relation(fields: [idingreso], references: [idingreso], onDelete: NoAction, onUpdate: NoAction)
+  detallePedidos           DetallePedido[]
+}
+
+model Ingreso {
+  idingreso        Int              @id @default(autoincrement())
+  idusuario        Int
+  idsucursal       Int
+  idproveedor      Int
+  tipo_comprobante String           @db.VarChar(20)
+  serie_comprobante String          @db.VarChar(7)
+  num_comprobante  String           @db.VarChar(10)
+  fecha            DateTime         @db.Date
+  impuesto         Decimal          @db.Decimal(8, 2)
+  total            Decimal          @db.Decimal(8, 2)
+  estado           String           @db.VarChar(20)
+  
+  sucursal         Sucursal         @relation(fields: [idsucursal], references: [idsucursal], onDelete: NoAction, onUpdate: NoAction)
+  proveedor        Persona          @relation(fields: [idproveedor], references: [idpersona], onDelete: NoAction, onUpdate: NoAction)
+  detalles         DetalleIngreso[]
+}
+
+model Persona {
+  idpersona      Int       @id @default(autoincrement())
+  tipo_persona   String    @db.VarChar(20)
+  nombre         String    @db.VarChar(150)
+  tipo_documento String    @db.VarChar(20)
+  num_documento  String    @db.VarChar(20)
+  direccion      String?   @db.VarChar(100)
+  telefono       String?   @db.VarChar(20)
+  email          String?   @db.VarChar(70)
+  estado         String    @db.Char(1)
+
+  ingresos       Ingreso[]
+}
+
+model Pedido {
+  idpedido       Int             @id @default(autoincrement())
+  idcliente      Int
+  idusuario      Int
+  idsucursal     Int
+  tipo_pedido    String          @db.VarChar(20)
+  fecha          DateTime        @db.Date
+  numero         Int?
+  estado         String          @db.VarChar(20)
+  
+  sucursal       Sucursal        @relation(fields: [idsucursal], references: [idsucursal], onDelete: NoAction, onUpdate: NoAction)
+  detalles       DetallePedido[]
+  ventas         Venta[]
+}
+
+model DetallePedido {
+  iddetalle_pedido  Int            @id @default(autoincrement())
+  idpedido          Int
+  iddetalle_ingreso Int
+  cantidad          Int
+  precio_venta      Decimal        @db.Decimal(8, 2)
+  descuento         Decimal?       @db.Decimal(8, 2)
+  
+  pedido            Pedido         @relation(fields: [idpedido], references: [idpedido], onDelete: NoAction, onUpdate: NoAction)
+  detalleIngreso    DetalleIngreso @relation(fields: [iddetalle_ingreso], references: [iddetalle_ingreso], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Venta {
+  idventa          Int       @id @default(autoincrement())
+  idpedido         Int
+  idusuario        Int
+  tipo_venta       String    @db.VarChar(20)
+  tipo_comprobante String    @db.VarChar(20)
+  serie_comprobante String   @db.VarChar(7)
+  num_comprobante  String    @db.VarChar(10)
+  fecha            DateTime  @db.Date
+  impuesto         Decimal   @db.Decimal(8, 2)
+  total            Decimal   @db.Decimal(8, 2)
+  estado           String    @db.VarChar(20)
+  
+  pedido           Pedido    @relation(fields: [idpedido], references: [idpedido], onDelete: NoAction, onUpdate: NoAction)
+  creditos         Credito[]
+}
+
+model Credito {
+  idcredito  Int      @id @default(autoincrement())
+  idventa    Int
+  fecha      DateTime @db.Date
+  total_pago Decimal  @db.Decimal(8, 2)
+
+  venta      Venta    @relation(fields: [idventa], references: [idventa], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model TipoDocumento {
+  idtipo_documento Int                        @id @default(autoincrement())
+  documento        String                     @db.VarChar(50)
+  operacion        String                     @db.VarChar(20)
+  estado           String                     @db.Char(1)
+
+  detallesSucursal DetalleDocumentoSucursal[]
+}
+
+// Modelos simplificados adicionales basados en tu SQL para completar relaciones
+model DetalleDocumentoSucursal {
+  iddetalle_documento_sucursal Int           @id @default(autoincrement())
+  idsucursal                   Int
+  idtipo_documento             Int
+  ultima_serie                 String        @db.VarChar(7)
+  ultimo_numero                String        @db.VarChar(10)
+  
+  sucursal                     Sucursal      @relation(fields: [idsucursal], references: [idsucursal], onDelete: NoAction, onUpdate: NoAction)
+  tipoDocumento                TipoDocumento @relation(fields: [idtipo_documento], references: [idtipo_documento], onDelete: NoAction, onUpdate: NoAction)
+}
