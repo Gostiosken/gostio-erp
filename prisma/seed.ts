@@ -74,7 +74,7 @@ async function main() {
   });
 
   await prisma.configuracionGlobal.upsert({
-    where: { empresa: "Gostio-ERP Casa Matriz" },
+    where: { empresa: "FabriColor Casa Matriz" },
     update: {
       nombre_impuesto: "IVA",
       porcentaje_impuesto: 10.0,
@@ -82,7 +82,7 @@ async function main() {
       logo: null,
     },
     create: {
-      empresa: "Gostio-ERP Casa Matriz",
+      empresa: "FabriColor Casa Matriz",
       nombre_impuesto: "IVA",
       porcentaje_impuesto: 10.0,
       simbolo_moneda: "Gs.",
@@ -241,7 +241,7 @@ async function main() {
   console.log("   Unidades: Unidad, Caja");
   console.log("   Tipos documento Persona: RUC, DNI, NIC, CEDULA");
   console.log("   Tipos documento Comprobante: FACTURA, BOLETA, TICKET, GUIA-REMISION");
-  console.log("   Configuración: Gostio-ERP Casa Matriz · IVA 10% · Gs.");
+  console.log("   Configuración: FabriColor Casa Matriz · IVA 10% · Gs.");
   } finally {
     await prisma.$disconnect();
   }

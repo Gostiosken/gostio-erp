@@ -39,3 +39,41 @@ export const CLIENTES_MOCK: Cliente[] = [
 export function getClientesMockActivos(): Cliente[] {
   return CLIENTES_MOCK.filter((cliente) => cliente.estado === "1");
 }
+
+let mockClienteWebCounter = 200;
+
+/** Resuelve o registra un cliente web en modo demostración. */
+export function obtenerOCrearClienteWebMock(
+  input: Pick<Cliente, "nombre" | "tipo_documento" | "num_documento" | "direccion" | "telefono" | "email">
+): Cliente {
+  const documento = input.num_documento.trim();
+  const existente = CLIENTES_MOCK.find(
+    (cliente) =>
+      cliente.tipo_persona === "Cliente" && cliente.num_documento === documento
+  );
+
+  if (existente) {
+    existente.nombre = input.nombre.trim();
+    existente.tipo_documento = input.tipo_documento;
+    existente.direccion = input.direccion?.trim() || null;
+    existente.telefono = input.telefono?.trim() || null;
+    existente.email = input.email?.trim() || null;
+    return existente;
+  }
+
+  mockClienteWebCounter += 1;
+  const nuevo: Cliente = {
+    idpersona: mockClienteWebCounter,
+    tipo_persona: "Cliente",
+    nombre: input.nombre.trim(),
+    tipo_documento: input.tipo_documento,
+    num_documento: documento,
+    direccion: input.direccion?.trim() || null,
+    telefono: input.telefono?.trim() || null,
+    email: input.email?.trim() || null,
+    estado: "1",
+  };
+
+  CLIENTES_MOCK.push(nuevo);
+  return nuevo;
+}

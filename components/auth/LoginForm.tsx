@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { loginUsuario } from "@/lib/actions/usuario";
@@ -43,7 +44,7 @@ export default function LoginForm({ sucursales, usingMockData = false }: LoginFo
 
       login(result.data);
       loginExitoso = true;
-      window.location.assign("/");
+      window.location.assign("/dashboard");
     } catch {
       setError("Ocurrió un error inesperado. Intente nuevamente.");
     } finally {
@@ -58,27 +59,41 @@ export default function LoginForm({ sucursales, usingMockData = false }: LoginFo
       <div className="relative hidden flex-1 overflow-hidden bg-slate-900 lg:flex lg:flex-col lg:justify-between">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(99,102,241,0.35),_transparent_55%)]" />
         <div className="relative z-10 p-12">
-          <p className="text-sm font-semibold uppercase tracking-widest text-indigo-300">
-            Gostio-ERP
+          <div className="animate-fabricolor-reveal">
+            <Image
+              src="/logo-light.png"
+              alt="FabriColor ERP"
+              width={220}
+              height={52}
+              priority
+              className="h-12 w-auto"
+            />
+          </div>
+          <p className="mt-6 max-w-md text-lg text-slate-300 animate-fabricolor-reveal [animation-delay:120ms]">
+            Gestión empresarial para serigrafía en Paraguay
           </p>
-          <h1 className="mt-4 max-w-md text-4xl font-bold leading-tight text-white">
-            Gestión empresarial para Paraguay
-          </h1>
-          <p className="mt-4 max-w-lg text-slate-300">
+          <p className="mt-4 max-w-lg text-slate-300 animate-fabricolor-reveal [animation-delay:220ms]">
             Acceda al sistema con sus credenciales y seleccione la sucursal en la que
             trabajará durante esta sesión.
           </p>
         </div>
         <div className="relative z-10 border-t border-slate-700/80 p-12 text-sm text-slate-400">
-          Gostio-ERP · Paraguay
+          FabriColor ERP · Paraguay
         </div>
       </div>
 
       <div className="flex w-full flex-col justify-center px-6 py-12 lg:w-[480px] lg:shrink-0 lg:px-12">
         <div className="mx-auto w-full max-w-sm">
           <div className="mb-8 lg:hidden">
-            <p className="text-sm font-semibold text-indigo-600">Gostio-ERP</p>
-            <h2 className="mt-2 text-2xl font-bold text-slate-900">Iniciar sesión</h2>
+            <Image
+              src="/logo-dark.png"
+              alt="FabriColor ERP"
+              width={180}
+              height={40}
+              priority
+              className="h-10 w-auto animate-fabricolor-reveal"
+            />
+            <h2 className="mt-4 text-2xl font-bold text-slate-900">Iniciar sesión</h2>
           </div>
 
           <div className="mb-8 hidden lg:block">
@@ -169,7 +184,7 @@ export default function LoginForm({ sucursales, usingMockData = false }: LoginFo
           </form>
 
           <p className="mt-8 text-center text-xs text-slate-400 lg:hidden">
-            Gostio-ERP · Paraguay
+            FabriColor ERP · Paraguay
           </p>
         </div>
       </div>

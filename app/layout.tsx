@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { CartProvider } from "@/components/ecommerce/CartProvider";
 import AppShell from "@/components/layout/AppShell";
 import "./globals.css";
 
@@ -15,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gostio-ERP | Sistema de Gestión",
-  description: "Gostio-ERP — Gestión empresarial para Paraguay",
+  title: "FabriColor ERP | Sistema de Gestión",
+  description: "FabriColor ERP — Gestión empresarial para serigrafía en Paraguay",
 };
 
 export default function RootLayout({
@@ -31,7 +32,9 @@ export default function RootLayout({
     >
       <body className="min-h-full">
         <AuthProvider>
-          <AppShell>{children}</AppShell>
+          <CartProvider>
+            <AppShell>{children}</AppShell>
+          </CartProvider>
         </AuthProvider>
       </body>
     </html>

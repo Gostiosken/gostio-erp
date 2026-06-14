@@ -10,13 +10,17 @@ import {
   getStockDisponible,
 } from "@/lib/actions/venta";
 import type { Cliente } from "@/lib/types/persona";
-import type { LoteDisponible, TipoComprobanteVenta, TipoVenta } from "@/lib/types/venta";
 import {
-  calcularTotalesVenta,
+  calcularLiquidacionIvaParaguay,
+  formatGsEntero,
+} from "@/lib/types/factura-ticket";
+import type { LoteDisponible, TipoComprobanteVenta, TipoVenta, VentaRegistro } from "@/lib/types/venta";
+import {
   formatMonedaVenta,
   TIPOS_COMPROBANTE_VENTA,
   TIPOS_VENTA,
 } from "@/lib/types/venta";
+import VentaExitoPanel from "@/components/ventas/VentaExitoPanel";
 
 type VentaLineItem = {
   key: string;
@@ -50,7 +54,6 @@ export default function NuevaVentaForm({
   const [serie, setSerie] = useState("");
   const [numero, setNumero] = useState("");
   const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10));
-  const porcentajeImpuesto = 10;
   const [items, setItems] = useState<VentaLineItem[]>([]);
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [busqueda, setBusqueda] = useState("");
@@ -58,6 +61,7 @@ export default function NuevaVentaForm({
     type: "success" | "error";
     message: string;
   } | null>(null);
+  const [ventaCompletada, setVentaCompletada] = useState<VentaRegistro | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const detallesInput = useMemo(
@@ -67,14 +71,33 @@ export default function NuevaVentaForm({
         cantidad: item.cantidad,
         precio_venta: item.precio_venta,
         descuento: item.descuento,
+        tipo_iva: item.lote.tipo_iva,
       })),
     [items]
   );
 
-  const totales = useMemo(
-    () => calcularTotalesVenta(detallesInput, porcentajeImpuesto),
-    [detallesInput, porcentajeImpuesto]
-  );
+  const totales = useMemo(() => {
+    const itemsTicket = items.map((item) => ({
+      nombre: item.lote.nombreArticulo,
+      cantidad: item.cantidad,
+      precio_venta: item.precio_venta,
+      descuento: item.descuento,
+      tipo_iva: item.lote.tipo_iva,
+    }));
+    const liquidacion = calcularLiquidacionIvaParaguay(itemsTicket);
+    return {
+      subtotalBruto: items.reduce(
+        (acc, item) => acc + item.cantidad * item.precio_venta,
+        0
+      ),
+      descuentoTotal: items.reduce((acc, item) => acc + item.descuento, 0),
+      subtotalNeto:
+        liquidacion.gravada10 + liquidacion.gravada5 + liquidacion.exenta,
+      impuesto: liquidacion.totalIva,
+      total: liquidacion.totalGeneral,
+      liquidacion,
+    };
+  }, [items]);
 
   const lotesFiltrados = useMemo(() => {
     const term = busqueda.trim().toLowerCase();
@@ -166,6 +189,7 @@ export default function NuevaVentaForm({
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFeedback(null);
+    setVentaCompletada(null);
 
     if (!session) {
       setFeedback({ type: "error", message: "Sesión no válida." });
@@ -203,18 +227,16 @@ export default function NuevaVentaForm({
           serie_comprobante: serie,
           num_comprobante: numero,
           fecha,
-          porcentaje_impuesto: porcentajeImpuesto,
+          porcentaje_impuesto: 10,
         },
         detalles: detallesInput,
       });
 
-      if (result.success) {
+      if (result.success && result.data) {
         actualizarStockLocal(detallesInput);
         setItems([]);
-        setFeedback({
-          type: "success",
-          message: `Venta procesada correctamente. Comprobante ${serie}-${numero}.`,
-        });
+        setVentaCompletada(result.data);
+        setFeedback(null);
 
         const correlativo = await getCorrelativoComprobante(
           session.idsucursal,
@@ -255,6 +277,13 @@ export default function NuevaVentaForm({
           <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
             Modo demostración: el stock se actualiza en memoria al procesar la venta.
           </div>
+        )}
+
+        {ventaCompletada && (
+          <VentaExitoPanel
+            venta={ventaCompletada}
+            onNuevaVenta={() => setVentaCompletada(null)}
+          />
         )}
 
         {feedback && (
@@ -378,7 +407,7 @@ export default function NuevaVentaForm({
             <button
               type="button"
               onClick={() => setCatalogOpen(true)}
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500"
+              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500"
             >
               + Agregar del inventario
             </button>
@@ -503,9 +532,27 @@ export default function NuevaVentaForm({
                 <dd className="font-medium">{formatMonedaVenta(totales.subtotalNeto)}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-slate-500">IVA ({porcentajeImpuesto}%)</dt>
+                <dt className="text-slate-500">IVA liquidado</dt>
                 <dd className="font-medium">{formatMonedaVenta(totales.impuesto)}</dd>
               </div>
+              {totales.liquidacion.gravada10 > 0 && (
+                <div className="flex justify-between text-xs text-slate-500">
+                  <dt>Grav. 10%</dt>
+                  <dd>{formatGsEntero(totales.liquidacion.gravada10)}</dd>
+                </div>
+              )}
+              {totales.liquidacion.gravada5 > 0 && (
+                <div className="flex justify-between text-xs text-slate-500">
+                  <dt>Grav. 5%</dt>
+                  <dd>{formatGsEntero(totales.liquidacion.gravada5)}</dd>
+                </div>
+              )}
+              {totales.liquidacion.exenta > 0 && (
+                <div className="flex justify-between text-xs text-slate-500">
+                  <dt>Exentas</dt>
+                  <dd>{formatGsEntero(totales.liquidacion.exenta)}</dd>
+                </div>
+              )}
               <div className="flex justify-between border-t border-slate-100 pt-2 text-base">
                 <dt className="font-semibold text-slate-800">Neto a pagar</dt>
                 <dd className="font-bold text-emerald-700">
@@ -518,7 +565,7 @@ export default function NuevaVentaForm({
           <button
             type="submit"
             disabled={isPending || items.length === 0 || clientes.length === 0}
-            className="inline-flex h-14 items-center justify-center rounded-xl bg-emerald-600 px-10 text-base font-bold text-white shadow-lg transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60 lg:self-end"
+            className="inline-flex h-14 items-center justify-center rounded-xl bg-indigo-600 px-10 text-base font-bold text-white shadow-lg transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60 lg:self-end"
           >
             {isPending ? "Procesando..." : "Procesar Venta"}
           </button>

@@ -4,6 +4,11 @@ export interface Timbrado {
   idtimbrado: number;
   numero_timbrado: string;
   idsucursal: number;
+  razon_social: string;
+  ruc_emisor: string;
+  direccion: string;
+  establecimiento: string;
+  punto_expedicion: string;
   serie: string;
   numero_desde: number;
   numero_hasta: number;
@@ -16,6 +21,11 @@ export interface Timbrado {
 export interface TimbradoInput {
   numero_timbrado: string;
   idsucursal: number;
+  razon_social: string;
+  ruc_emisor: string;
+  direccion: string;
+  establecimiento: string;
+  punto_expedicion: string;
   serie: string;
   numero_desde: number;
   numero_hasta: number;

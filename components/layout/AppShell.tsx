@@ -2,10 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import EcommerceShell from "@/components/ecommerce/EcommerceShell";
 import Sidebar from "@/components/ui/Sidebar";
 import { useAuth } from "@/components/auth/AuthProvider";
 
 const PUBLIC_ROUTES = ["/login"];
+const ECOMMERCE_ROUTES = ["/", "/carrito"];
+
+function isEcommerceRoute(pathname: string): boolean {
+  return ECOMMERCE_ROUTES.includes(pathname);
+}
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -14,21 +20,24 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
+  const isStoreRoute = isEcommerceRoute(pathname);
 
   useEffect(() => {
     if (isLoading) return;
 
     if (isPublicRoute) {
       if (session) {
-        router.replace("/");
+        router.replace("/dashboard");
       }
       return;
     }
 
+    if (isStoreRoute) return;
+
     if (!session) {
       router.replace("/login");
     }
-  }, [isLoading, isPublicRoute, session, router]);
+  }, [isLoading, isPublicRoute, isStoreRoute, session, router]);
 
   useEffect(() => {
     if (!sidebarOpen) return;
@@ -40,6 +49,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   if (isPublicRoute) {
     return <>{children}</>;
+  }
+
+  if (isStoreRoute) {
+    return <EcommerceShell>{children}</EcommerceShell>;
   }
 
   if (isLoading || !session) {
@@ -60,7 +73,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           type="button"
           aria-label="Cerrar menú"
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm md:hidden"
+          className="app-no-print fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm md:hidden"
         />
       )}
 
@@ -70,7 +83,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-3 md:hidden">
+        <header className="app-no-print sticky top-0 z-30 flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-3 md:hidden">
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
@@ -90,7 +103,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </button>
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-indigo-600">
-              Gostio-ERP
+              FabriColor ERP
             </p>
             <p className="truncate text-sm font-medium text-slate-800">Panel Principal</p>
           </div>
@@ -98,8 +111,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
         <div className="flex min-h-0 flex-1 flex-col">{children}</div>
 
-        <footer className="border-t border-slate-200 bg-white px-4 py-4 text-center text-xs text-slate-500 md:hidden">
-          Gostio-ERP · Paraguay
+        <footer className="app-no-print border-t border-slate-200 bg-white px-4 py-4 text-center text-xs text-slate-500 md:hidden">
+          FabriColor ERP · Paraguay
         </footer>
       </div>
     </div>

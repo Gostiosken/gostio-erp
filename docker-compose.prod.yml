@@ -1,7 +1,7 @@
 version: '3.8'
 
 # =============================================================================
-# Gostio-ERP — Orquestación de Producción para AWS 
+# FabriColor ERP — Orquestación de Producción para AWS 
 # Ajustado para convivir con Nginx Proxy Manager en la red 'npm_default'
 # =============================================================================
 

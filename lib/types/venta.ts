@@ -1,4 +1,6 @@
 import { formatMoneda as formatMonedaBase } from "@/lib/format-moneda";
+import type { TipoIvaParaguay } from "@/lib/types/factura-ticket";
+import type { TicketFacturaData } from "@/lib/types/factura-ticket";
 
 export type TipoVenta = "Contado" | "Credito";
 
@@ -13,6 +15,7 @@ export interface LoteDisponible {
   descripcion: string | null;
   stock_actual: number;
   precio_ventapublico: number;
+  tipo_iva: TipoIvaParaguay;
 }
 
 export interface DetalleVentaInput {
@@ -20,6 +23,7 @@ export interface DetalleVentaInput {
   cantidad: number;
   precio_venta: number;
   descuento?: number;
+  tipo_iva?: TipoIvaParaguay;
 }
 
 export interface VentaCabeceraInput {
@@ -43,6 +47,7 @@ export interface CorrelativoComprobante {
   serie: string;
   numero: string;
   siguienteNumero: string;
+  num_factura?: string;
 }
 
 export interface DetallePedidoVenta {
@@ -51,6 +56,8 @@ export interface DetallePedidoVenta {
   cantidad: number;
   precio_venta: number;
   descuento: number | null;
+  tipo_iva: TipoIvaParaguay;
+  nombreArticulo?: string;
 }
 
 export interface VentaRegistro {
@@ -59,16 +66,24 @@ export interface VentaRegistro {
   idcliente: number;
   idusuario: number;
   idsucursal: number;
+  idtimbrado?: number | null;
   tipo_venta: TipoVenta;
   tipo_comprobante: string;
   serie_comprobante: string;
   num_comprobante: string;
+  num_factura?: string | null;
   fecha: string;
   impuesto: number;
   total: number;
   estado: string;
-  cliente?: { idpersona: number; nombre: string };
+  cliente?: {
+    idpersona: number;
+    nombre: string;
+    tipo_documento?: string;
+    num_documento?: string;
+  };
   detalles?: DetallePedidoVenta[];
+  ticket?: TicketFacturaData;
 }
 
 export const TIPOS_VENTA: TipoVenta[] = ["Contado", "Credito"];

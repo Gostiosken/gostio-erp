@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { Globe } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import {
   getEmpleadoNombreCompleto,
@@ -14,11 +15,12 @@ type NavItem = {
   href: string;
   permission: MenuPermisoKey;
   icon: React.ReactNode;
+  className?: string;
 };
 
 const DASHBOARD_ITEM: NavItem = {
   label: "Panel de Control",
-  href: "/",
+  href: "/dashboard",
   permission: "mnu_admin",
   icon: (
     <svg
@@ -30,6 +32,26 @@ const DASHBOARD_ITEM: NavItem = {
       className="h-5 w-5"
     >
       <path d="M3 13h8V3H3v10Zm10 8h8V11h-8v10ZM3 21h8v-6H3v6Zm10-10h8V3h-8v8Z" />
+    </svg>
+  ),
+};
+
+const REPORTES_ITEM: NavItem = {
+  label: "Reportes",
+  href: "/reportes",
+  permission: "mnu_admin",
+  className: "app-no-print",
+  icon: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      className="h-5 w-5"
+    >
+      <path d="M3 3v18h18" />
+      <path d="M7 16l4-6 4 4 5-8" />
     </svg>
   ),
 };
@@ -242,6 +264,12 @@ const COMPRAS_ITEMS: NavItem[] = [
 
 const VENTAS_ITEMS: NavItem[] = [
   {
+    label: "Pedidos Web",
+    href: "/ventas/pedidos-web",
+    permission: "mnu_ventas",
+    icon: <Globe className="h-5 w-5" strokeWidth={1.8} />,
+  },
+  {
     label: "Clientes",
     href: "/ventas/clientes",
     permission: "mnu_ventas",
@@ -320,7 +348,7 @@ function NavLink({
         active
           ? "bg-indigo-600 text-white shadow-sm"
           : "text-slate-300 hover:bg-slate-800 hover:text-white"
-      }`}
+      } ${item.className ?? ""}`}
     >
       <span className={active ? "text-white" : "text-slate-400"}>{item.icon}</span>
       {item.label}
@@ -366,7 +394,7 @@ export default function Sidebar({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col border-r border-slate-700 bg-slate-900 text-white transition-transform duration-300 ease-in-out md:static md:z-auto md:w-64 md:max-w-none md:shrink-0 md:translate-x-0 ${
+      className={`app-no-print fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col border-r border-slate-700 bg-slate-900 text-white transition-transform duration-300 ease-in-out md:static md:z-auto md:w-64 md:max-w-none md:shrink-0 md:translate-x-0 ${
         mobileOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >
@@ -374,7 +402,8 @@ export default function Sidebar({
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-indigo-300">
-              Gostio-ERP
+              <span>Fabri</span>
+              <span className="text-indigo-400">Color</span> ERP
             </p>
             <h1 className="mt-1 text-lg font-bold">Panel Principal</h1>
             <p className="mt-1 text-xs text-slate-400">Paraguay · IVA 10%</p>
@@ -411,6 +440,13 @@ export default function Sidebar({
             </p>
             <div className="space-y-1">
               <NavLink item={DASHBOARD_ITEM} pathname={pathname} onNavigate={handleNavigate} />
+              {hasMenuPermiso(session.usuario, "mnu_admin") && (
+                <NavLink
+                  item={REPORTES_ITEM}
+                  pathname={pathname}
+                  onNavigate={handleNavigate}
+                />
+              )}
             </div>
           </div>
         )}
@@ -494,7 +530,7 @@ export default function Sidebar({
             Cerrar Sesión
           </button>
         </div>
-        <p className="mt-3 text-center text-xs text-slate-500">Gostio-ERP · Paraguay</p>
+        <p className="mt-3 text-center text-xs text-slate-500">FabriColor ERP · Paraguay</p>
       </div>
     </aside>
   );

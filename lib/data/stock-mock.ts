@@ -108,6 +108,7 @@ export function getLotesDisponiblesMock(idsucursal: number): LoteDisponible[] {
           descripcion: detalle.descripcion ?? null,
           stock_actual: detalle.stock_actual,
           precio_ventapublico: detalle.precio_ventapublico,
+          tipo_iva: "10",
         });
       }
     }

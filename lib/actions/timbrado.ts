@@ -20,6 +20,11 @@ function mapTimbrado(timbrado: {
   idtimbrado: number;
   numero_timbrado: string;
   idsucursal: number;
+  razon_social: string;
+  ruc_emisor: string;
+  direccion: string;
+  establecimiento: string;
+  punto_expedicion: string;
   serie: string;
   numero_desde: number;
   numero_hasta: number;
@@ -32,6 +37,11 @@ function mapTimbrado(timbrado: {
     idtimbrado: timbrado.idtimbrado,
     numero_timbrado: timbrado.numero_timbrado,
     idsucursal: timbrado.idsucursal,
+    razon_social: timbrado.razon_social,
+    ruc_emisor: timbrado.ruc_emisor,
+    direccion: timbrado.direccion,
+    establecimiento: timbrado.establecimiento,
+    punto_expedicion: timbrado.punto_expedicion,
     serie: timbrado.serie,
     numero_desde: timbrado.numero_desde,
     numero_hasta: timbrado.numero_hasta,
@@ -233,6 +243,11 @@ export async function createTimbrado(
       data: {
         numero_timbrado: input.numero_timbrado.trim(),
         idsucursal: input.idsucursal,
+        razon_social: input.razon_social.trim(),
+        ruc_emisor: input.ruc_emisor.trim(),
+        direccion: input.direccion.trim(),
+        establecimiento: input.establecimiento.trim().padStart(3, "0").slice(-3),
+        punto_expedicion: input.punto_expedicion.trim().padStart(3, "0").slice(-3),
         serie: input.serie.trim(),
         numero_desde: input.numero_desde,
         numero_hasta: input.numero_hasta,
@@ -285,6 +300,11 @@ export async function updateTimbrado(
       data: {
         numero_timbrado: input.numero_timbrado.trim(),
         idsucursal: input.idsucursal,
+        razon_social: input.razon_social.trim(),
+        ruc_emisor: input.ruc_emisor.trim(),
+        direccion: input.direccion.trim(),
+        establecimiento: input.establecimiento.trim().padStart(3, "0").slice(-3),
+        punto_expedicion: input.punto_expedicion.trim().padStart(3, "0").slice(-3),
         serie: input.serie.trim(),
         numero_desde: input.numero_desde,
         numero_hasta: input.numero_hasta,

@@ -1,4 +1,4 @@
-# Gostio-ERP — imagen de producción (multi-stage)
+# FabriColor ERP — imagen de producción (multi-stage)
 FROM node:18-alpine AS builder
 
 WORKDIR /app

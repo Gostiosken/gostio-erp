@@ -32,7 +32,12 @@ function buildEmptyForm(idsucursal: number): TimbradoInput {
   return {
     numero_timbrado: "",
     idsucursal,
-    serie: "",
+    razon_social: "",
+    ruc_emisor: "",
+    direccion: "",
+    establecimiento: "001",
+    punto_expedicion: "001",
+    serie: "001",
     numero_desde: 1,
     numero_hasta: 1,
     numero_actual: 1,
@@ -116,6 +121,11 @@ export default function TimbradosManager() {
     setForm({
       numero_timbrado: timbrado.numero_timbrado,
       idsucursal: timbrado.idsucursal,
+      razon_social: timbrado.razon_social,
+      ruc_emisor: timbrado.ruc_emisor,
+      direccion: timbrado.direccion,
+      establecimiento: timbrado.establecimiento,
+      punto_expedicion: timbrado.punto_expedicion,
       serie: timbrado.serie,
       numero_desde: timbrado.numero_desde,
       numero_hasta: timbrado.numero_hasta,
@@ -141,6 +151,11 @@ export default function TimbradosManager() {
       ...form,
       idsucursal: session.idsucursal,
       numero_timbrado: form.numero_timbrado.trim(),
+      razon_social: form.razon_social.trim(),
+      ruc_emisor: form.ruc_emisor.trim(),
+      direccion: form.direccion.trim(),
+      establecimiento: form.establecimiento.trim(),
+      punto_expedicion: form.punto_expedicion.trim(),
       serie: form.serie.trim(),
     };
 
@@ -249,7 +264,8 @@ export default function TimbradosManager() {
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/80">
                   <th className="px-5 py-3.5 font-semibold text-slate-600">N° Timbrado</th>
-                  <th className="px-5 py-3.5 font-semibold text-slate-600">Serie</th>
+                  <th className="px-5 py-3.5 font-semibold text-slate-600">Emisor</th>
+                  <th className="px-5 py-3.5 font-semibold text-slate-600">Est.-Pto.</th>
                   <th className="px-5 py-3.5 font-semibold text-slate-600">Rango</th>
                   <th className="px-5 py-3.5 font-semibold text-slate-600">Correlativo Actual</th>
                   <th className="px-5 py-3.5 font-semibold text-slate-600">Vencimiento</th>
@@ -260,13 +276,13 @@ export default function TimbradosManager() {
               <tbody className="divide-y divide-slate-100">
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="px-5 py-14 text-center text-slate-500">
+                    <td colSpan={8} className="px-5 py-14 text-center text-slate-500">
                       Cargando timbrados...
                     </td>
                   </tr>
                 ) : timbrados.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-5 py-14 text-center text-slate-500">
+                    <td colSpan={8} className="px-5 py-14 text-center text-slate-500">
                       No hay timbrados registrados para esta sucursal.
                     </td>
                   </tr>
@@ -280,8 +296,12 @@ export default function TimbradosManager() {
                         {timbrado.numero_timbrado}
                       </td>
                       <td className="px-5 py-4">
+                        <p className="font-medium text-slate-900">{timbrado.razon_social}</p>
+                        <p className="text-xs text-slate-500">RUC {timbrado.ruc_emisor}</p>
+                      </td>
+                      <td className="px-5 py-4">
                         <span className="rounded-lg bg-slate-100 px-2 py-1 font-mono text-xs text-slate-700">
-                          {timbrado.serie}
+                          {timbrado.establecimiento}-{timbrado.punto_expedicion}
                         </span>
                       </td>
                       <td className="px-5 py-4 text-slate-700">
@@ -362,14 +382,95 @@ export default function TimbradosManager() {
               />
             </div>
 
+            <div className="sm:col-span-2">
+              <label htmlFor="razon_social" className="mb-1.5 block text-sm font-medium text-slate-700">
+                Razón Social *
+              </label>
+              <input
+                id="razon_social"
+                type="text"
+                required
+                maxLength={150}
+                value={form.razon_social}
+                onChange={(e) => setForm((prev) => ({ ...prev, razon_social: e.target.value }))}
+                placeholder="Ej. FabriColor Casa Matriz S.A."
+                className={inputClassName}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="ruc_emisor" className="mb-1.5 block text-sm font-medium text-slate-700">
+                RUC Emisor *
+              </label>
+              <input
+                id="ruc_emisor"
+                type="text"
+                required
+                maxLength={20}
+                value={form.ruc_emisor}
+                onChange={(e) => setForm((prev) => ({ ...prev, ruc_emisor: e.target.value }))}
+                placeholder="Ej. 80012345-6"
+                className={inputClassName}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="direccion" className="mb-1.5 block text-sm font-medium text-slate-700">
+                Dirección *
+              </label>
+              <input
+                id="direccion"
+                type="text"
+                required
+                maxLength={100}
+                value={form.direccion}
+                onChange={(e) => setForm((prev) => ({ ...prev, direccion: e.target.value }))}
+                placeholder="Dirección fiscal del emisor"
+                className={inputClassName}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="establecimiento" className="mb-1.5 block text-sm font-medium text-slate-700">
+                Establecimiento *
+              </label>
+              <input
+                id="establecimiento"
+                type="text"
+                required
+                maxLength={3}
+                value={form.establecimiento}
+                onChange={(e) => setForm((prev) => ({ ...prev, establecimiento: e.target.value }))}
+                placeholder="001"
+                className={inputClassName}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="punto_expedicion" className="mb-1.5 block text-sm font-medium text-slate-700">
+                Punto de Expedición *
+              </label>
+              <input
+                id="punto_expedicion"
+                type="text"
+                required
+                maxLength={3}
+                value={form.punto_expedicion}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, punto_expedicion: e.target.value }))
+                }
+                placeholder="001"
+                className={inputClassName}
+              />
+            </div>
+
             <div>
               <label htmlFor="serie" className="mb-1.5 block text-sm font-medium text-slate-700">
-                Serie *
+                Serie (referencia)
               </label>
               <input
                 id="serie"
                 type="text"
-                required
                 maxLength={7}
                 value={form.serie}
                 onChange={(e) => setForm((prev) => ({ ...prev, serie: e.target.value }))}

@@ -17,7 +17,7 @@ export interface ConfiguracionGlobalInput {
 
 export const CONFIGURACION_DEFAULT: ConfiguracionGlobal = {
   idglobal: 1,
-  empresa: "Gostio-ERP Casa Matriz",
+  empresa: "FabriColor Casa Matriz",
   nombre_impuesto: "IVA",
   porcentaje_impuesto: 10,
   simbolo_moneda: "Gs.",

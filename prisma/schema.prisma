@@ -29,6 +29,7 @@ model Articulo {
   nombre           String           @db.VarChar(50)
   descripcion      String?          @db.Text
   imagen           String?          @db.VarChar(150)
+  tipo_iva         String           @default("10") @db.VarChar(10)
   estado           String           @db.Char(1)
   
   categoria        Categoria        @relation(fields: [idcategoria], references: [idcategoria], onDelete: NoAction, onUpdate: NoAction)
@@ -59,6 +60,11 @@ model Timbrado {
   idtimbrado         Int      @id @default(autoincrement())
   numero_timbrado    String   @db.VarChar(20)
   idsucursal         Int
+  razon_social       String   @db.VarChar(150)
+  ruc_emisor         String   @db.VarChar(20)
+  direccion          String   @db.VarChar(100)
+  establecimiento    String   @default("001") @db.VarChar(3)
+  punto_expedicion   String   @default("001") @db.VarChar(3)
   serie              String   @db.VarChar(7)
   numero_desde       Int
   numero_hasta       Int
@@ -68,6 +74,7 @@ model Timbrado {
   estado             String   @db.Char(1)
 
   sucursal           Sucursal @relation(fields: [idsucursal], references: [idsucursal], onDelete: NoAction, onUpdate: NoAction)
+  ventas             Venta[]
 }
 
 model Empleado {
@@ -169,6 +176,7 @@ model Pedido {
   idusuario      Int
   idsucursal     Int
   tipo_pedido    String          @db.VarChar(20)
+  origen         String          @default("POS") @db.VarChar(10)
   fecha          DateTime        @db.Date
   numero         Int?
   estado         String          @db.VarChar(20)
@@ -185,6 +193,7 @@ model DetallePedido {
   cantidad          Int
   precio_venta      Decimal        @db.Decimal(8, 2)
   descuento         Decimal?       @db.Decimal(8, 2)
+  tipo_iva          String         @default("10") @db.VarChar(10)
   
   pedido            Pedido         @relation(fields: [idpedido], references: [idpedido], onDelete: NoAction, onUpdate: NoAction)
   detalleIngreso    DetalleIngreso @relation(fields: [iddetalle_ingreso], references: [iddetalle_ingreso], onDelete: NoAction, onUpdate: NoAction)
@@ -194,16 +203,19 @@ model Venta {
   idventa          Int       @id @default(autoincrement())
   idpedido         Int
   idusuario        Int
+  idtimbrado       Int?
   tipo_venta       String    @db.VarChar(20)
   tipo_comprobante String    @db.VarChar(20)
   serie_comprobante String   @db.VarChar(7)
   num_comprobante  String    @db.VarChar(10)
+  num_factura      String?   @db.VarChar(20)
   fecha            DateTime  @db.Date
   impuesto         Decimal   @db.Decimal(8, 2)
   total            Decimal   @db.Decimal(8, 2)
   estado           String    @db.VarChar(20)
   
   pedido           Pedido    @relation(fields: [idpedido], references: [idpedido], onDelete: NoAction, onUpdate: NoAction)
+  timbrado         Timbrado? @relation(fields: [idtimbrado], references: [idtimbrado], onDelete: NoAction, onUpdate: NoAction)
   creditos         Credito[]
 }
 

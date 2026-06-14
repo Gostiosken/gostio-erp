@@ -10,6 +10,23 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --animate-fabricolor-reveal: fabricolor-reveal 700ms ease-out forwards;
+}
+
+@keyframes fabricolor-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fabricolor-reveal {
+  animation: fabricolor-reveal 700ms ease-out forwards;
+  opacity: 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,4 +40,41 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+
+  body.printing-ticket {
+    margin: 0;
+    background: white;
+  }
+
+  body.printing-ticket .app-no-print {
+    display: none !important;
+  }
+
+  body.printing-ticket * {
+    visibility: hidden;
+  }
+
+  body.printing-ticket .ticket-print-root,
+  body.printing-ticket .ticket-print-root * {
+    visibility: visible;
+  }
+
+  body.printing-ticket .ticket-print-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    max-width: 80mm;
+    margin: 0;
+    padding: 2mm;
+    background: white;
+    color: black;
+  }
 }
