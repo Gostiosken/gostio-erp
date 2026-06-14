@@ -1,0 +1,1 @@
+ALTER TABLE "Articulo" ALTER COLUMN "imagen" SET DATA TYPE TEXT;

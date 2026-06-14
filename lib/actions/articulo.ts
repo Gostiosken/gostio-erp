@@ -9,8 +9,18 @@ import {
 } from "@/lib/data/articulos-mock";
 import type { ActionResult } from "@/lib/types/action";
 import type { Articulo, ArticuloInput } from "@/lib/types/articulo";
+import { normalizarImagenArticulo } from "@/lib/utils/articulo-imagen";
 
 const ARTICULOS_PATH = "/almacen/articulos";
+const TIENDA_PATH = "/";
+
+function resolverImagenParaDb(imagen?: string | null): string | null | { error: string } {
+  try {
+    return normalizarImagenArticulo(imagen);
+  } catch {
+    return { error: "La imagen es demasiado grande. Use un archivo menor a 1,5 MB." };
+  }
+}
 
 function mapArticulo(articulo: {
   idarticulo: number;
@@ -119,13 +129,18 @@ export async function createArticulo(
   }
 
   try {
+    const imagen = resolverImagenParaDb(input.imagen);
+    if (imagen && typeof imagen === "object" && "error" in imagen) {
+      return { success: false, error: imagen.error };
+    }
+
     const articulo = await getPrisma().articulo.create({
       data: {
         idcategoria: input.idcategoria,
         idunidad_medida: input.idunidad_medida,
         nombre: input.nombre.trim(),
         descripcion: input.descripcion?.trim() || null,
-        imagen: input.imagen?.trim() || null,
+        imagen: imagen as string | null,
         estado: input.estado ?? "1",
       },
       include: {
@@ -139,6 +154,7 @@ export async function createArticulo(
     });
 
     revalidatePath(ARTICULOS_PATH);
+    revalidatePath(TIENDA_PATH);
     return { success: true, data: mapArticulo(articulo) };
   } catch {
     return {
@@ -162,6 +178,11 @@ export async function updateArticulo(
   }
 
   try {
+    const imagen = resolverImagenParaDb(input.imagen);
+    if (imagen && typeof imagen === "object" && "error" in imagen) {
+      return { success: false, error: imagen.error };
+    }
+
     const articulo = await getPrisma().articulo.update({
       where: { idarticulo: id },
       data: {
@@ -169,7 +190,7 @@ export async function updateArticulo(
         idunidad_medida: input.idunidad_medida,
         nombre: input.nombre.trim(),
         descripcion: input.descripcion?.trim() || null,
-        imagen: input.imagen?.trim() || null,
+        imagen: imagen as string | null,
         estado: input.estado ?? "1",
       },
       include: {
@@ -183,6 +204,7 @@ export async function updateArticulo(
     });
 
     revalidatePath(ARTICULOS_PATH);
+    revalidatePath(TIENDA_PATH);
     return { success: true, data: mapArticulo(articulo) };
   } catch {
     return {

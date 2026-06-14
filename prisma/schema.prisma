@@ -28,7 +28,7 @@ model Articulo {
   idunidad_medida  Int
   nombre           String           @db.VarChar(50)
   descripcion      String?          @db.Text
-  imagen           String?          @db.VarChar(150)
+  imagen           String?          @db.Text
   tipo_iva         String           @default("10") @db.VarChar(10)
   estado           String           @db.Char(1)
   

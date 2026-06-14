@@ -8,12 +8,14 @@ import Modal, {
   modalFormFooterClassName,
   modalSubmitButtonClassName,
 } from "@/components/ui/Modal";
+import ArticuloImagenUpload from "@/components/almacen/ArticuloImagenUpload";
 import {
   createArticulo,
   deleteArticulo,
   updateArticulo,
 } from "@/lib/actions/articulo";
 import { buildMockArticulo } from "@/lib/data/articulos-mock";
+import { obtenerSrcImagenArticulo } from "@/lib/utils/articulo-imagen";
 import type { Articulo, ArticuloInput } from "@/lib/types/articulo";
 import {
   getArticuloEstadoLabel,
@@ -45,7 +47,7 @@ function createEmptyForm(
     idunidad_medida: unidades[0]?.idunidad_medida ?? 0,
     nombre: "",
     descripcion: "",
-    imagen: "",
+    imagen: null,
     estado: "1",
   };
 }
@@ -56,17 +58,19 @@ function articuloToForm(articulo: Articulo): ArticuloInput {
     idunidad_medida: articulo.idunidad_medida,
     nombre: articulo.nombre,
     descripcion: articulo.descripcion ?? "",
-    imagen: articulo.imagen ?? "",
+    imagen: articulo.imagen ?? null,
     estado: articulo.estado,
   };
 }
 
 function ArticuloImagen({ imagen, nombre }: { imagen: string | null; nombre: string }) {
-  if (imagen) {
+  const src = obtenerSrcImagenArticulo(imagen);
+
+  if (src) {
     return (
       <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
         <Image
-          src={imagen}
+          src={src}
           alt={nombre}
           fill
           className="object-cover"
@@ -571,17 +575,10 @@ export default function ArticulosManager({
           </div>
 
           <div>
-            <label htmlFor="imagen" className={labelClassName}>
-              Imagen (URL o ruta)
-            </label>
-            <input
-              id="imagen"
-              type="text"
-              maxLength={150}
-              value={form.imagen ?? ""}
-              onChange={(e) => setForm({ ...form, imagen: e.target.value })}
-              className={inputClassName}
-              placeholder="/productos/arroz.png"
+            <ArticuloImagenUpload
+              value={form.imagen}
+              onChange={(imagen) => setForm({ ...form, imagen })}
+              disabled={isPending}
             />
           </div>
 

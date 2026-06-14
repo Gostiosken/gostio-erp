@@ -87,6 +87,7 @@ export default function CartDrawer() {
                         fill
                         className="object-cover"
                         sizes="64px"
+                        unoptimized
                         onError={(e) => {
                           e.currentTarget.style.display = "none";
                         }}

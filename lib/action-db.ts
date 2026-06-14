@@ -3,8 +3,15 @@ import { isDatabaseConfigured } from "@/lib/db-availability";
 
 export { isDatabaseConfigured };
 
-/** Solo usar datos mock cuando no hay DATABASE_URL configurada. */
+/**
+ * Determina si el ERP debe operar con datos mock.
+ * Con NEXT_PUBLIC_USE_MOCK_DATA=false los mocks quedan desactivados por completo.
+ */
 export function shouldUseMockData(): boolean {
+  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === "false") {
+    return false;
+  }
+
   return !isDatabaseConfigured();
 }
 
